@@ -1,11 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { getAIConfig, saveAIConfig } from '@/lib/storage'
 import type { AIConfig } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -13,6 +20,32 @@ import { cn } from '@/lib/utils'
 export default function SettingsPage() {
   const [config, setConfig] = useState<AIConfig>(() => getAIConfig())
   const [saved, setSaved] = useState(false)
+
+  const [models, setModels] = useState<string[]>([])
+  const [loadingModels, setLoadingModels] = useState(false)
+  const [modelsError, setModelsError] = useState<string | null>(null)
+
+  const fetchModels = useCallback(async (baseUrl: string) => {
+    setLoadingModels(true)
+    setModelsError(null)
+    try {
+      const res = await fetch(`${baseUrl}/models`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      const ids: string[] = (json.data as { id: string }[])?.map((m) => m.id).sort() ?? []
+      setModels(ids)
+    } catch {
+      setModels([])
+      setModelsError('Could not fetch models. Make sure the server is running.')
+    } finally {
+      setLoadingModels(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchModels(config.baseUrl)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSave = () => {
     saveAIConfig(config)
@@ -62,18 +95,56 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium" htmlFor="model">
-                Model
-              </label>
-              <Input
-                id="model"
-                value={config.model}
-                onChange={(e) => setConfig((c) => ({ ...c, model: e.target.value }))}
-                placeholder="llama3.2"
-              />
-              <p className="text-muted-foreground text-xs">
-                e.g. <code>llama3.2</code>, <code>mistral</code>, <code>gpt-4o</code>
-              </p>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium" htmlFor="model">
+                  Model
+                </label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 gap-1.5 px-2 text-xs"
+                  onClick={() => fetchModels(config.baseUrl)}
+                  disabled={loadingModels}
+                >
+                  <RefreshCw className={cn('h-3 w-3', loadingModels && 'animate-spin')} />
+                  {loadingModels ? 'Loading…' : 'Refresh'}
+                </Button>
+              </div>
+
+              {models.length > 0 ? (
+                <Select
+                  value={config.model}
+                  onValueChange={(value) => value && setConfig((c) => ({ ...c, model: value }))}
+                >
+                  <SelectTrigger id="model" className="w-full">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {models.map((m) => (
+                      <SelectItem key={m} value={m}>
+                        {m}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id="model"
+                  value={config.model}
+                  onChange={(e) => setConfig((c) => ({ ...c, model: e.target.value }))}
+                  placeholder="llama3.2"
+                />
+              )}
+
+              {modelsError ? (
+                <p className="text-muted-foreground text-xs">
+                  {modelsError} Showing text input as fallback.
+                </p>
+              ) : (
+                <p className="text-muted-foreground text-xs">
+                  e.g. <code>llama3.2</code>, <code>mistral</code>, <code>gpt-4o</code>
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">
