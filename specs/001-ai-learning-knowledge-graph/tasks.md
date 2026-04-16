@@ -1,5 +1,5 @@
 ---
-description: "Task list for AI-Powered Learning Knowledge Graph PoC"
+description: 'Task list for AI-Powered Learning Knowledge Graph PoC'
 ---
 
 # Tasks: AI-Powered Learning Knowledge Graph
@@ -25,13 +25,13 @@ and delivery of each story as a working increment.
 **Purpose**: Install dependencies, configure quality gates, initialize ShadcnUI,
 update root layout. This phase must be fully complete before any feature work.
 
-- [ ] T001 Install new npm dependencies: `npm install @xyflow/react @dagrejs/dagre openai` and `npm install -D husky lint-staged prettier`
-- [ ] T002 Initialize ShadcnUI and add required components: `npx shadcn@latest init` then `npx shadcn@latest add button card dialog input badge sheet` — generates into `components/ui/`
-- [ ] T003 [P] Initialize husky and create pre-commit hook — create `.husky/pre-commit` running `npx lint-staged`
-- [ ] T004 [P] Create husky pre-push hook — create `.husky/pre-push` running `npm run build`
-- [ ] T005 [P] Add lint-staged config to `package.json`: `{ "*.{ts,tsx}": ["eslint --fix", "prettier --write"], "*.{css,json,md}": ["prettier --write"] }`
-- [ ] T006 [P] Create `.prettierrc` at repo root: `{ "semi": false, "singleQuote": true, "trailingComma": "es5", "printWidth": 100 }`
-- [ ] T007 [P] Update `app/layout.tsx`: set title to "Meaningful Learning", description to "Learn any topic with AI-powered knowledge graphs", remove placeholder content from body
+- [x] T001 Install new npm dependencies: `npm install @xyflow/react @dagrejs/dagre openai` and `npm install -D husky lint-staged prettier`
+- [x] T002 Initialize ShadcnUI and add required components: `npx shadcn@latest init` then `npx shadcn@latest add button card dialog input badge sheet` — generates into `components/ui/`
+- [x] T003 [P] Initialize husky and create pre-commit hook — create `.husky/pre-commit` running `npx lint-staged`
+- [x] T004 [P] Create husky pre-push hook — create `.husky/pre-push` running `npm run build`
+- [x] T005 [P] Add lint-staged config to `package.json`: `{ "*.{ts,tsx}": ["eslint --fix", "prettier --write"], "*.{css,json,md}": ["prettier --write"] }`
+- [x] T006 [P] Create `.prettierrc` at repo root: `{ "semi": false, "singleQuote": true, "trailingComma": "es5", "printWidth": 100 }`
+- [x] T007 [P] Update `app/layout.tsx`: set title to "Meaningful Learning", description to "Learn any topic with AI-powered knowledge graphs", remove placeholder content from body
 
 ---
 
@@ -42,9 +42,9 @@ infrastructure required by every user story.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T008 Create `lib/types.ts` with all interfaces from data-model.md: `NodeState`, `ConceptNode`, `DependencyEdge`, `KnowledgeGraph`, `Course`, `CourseSummary`, `AIGraphResponse`, `AIConfig`, and `AIClientError` class
-- [ ] T009 [P] Create `lib/storage.ts` implementing the full storage contract: `getCourseIndex`, `saveCourseIndex`, `getCourse`, `saveCourse`, `deleteCourse`, `getAIConfig`, `saveAIConfig` — all reading/writing localStorage with error handling per contracts/storage.md
-- [ ] T010 [P] Create `lib/graph-engine.ts` with two exports: `computeNodeStates(nodes, edges, knownIds)` → `ConceptNode[]` applying the known/edge/future state machine from data-model.md; `buildKnowledgeGraph(response, prompt)` → `KnowledgeGraph` converting `AIGraphResponse` + assigning edge IDs + computing initial states
+- [x] T008 Create `lib/types.ts` with all interfaces from data-model.md: `NodeState`, `ConceptNode`, `DependencyEdge`, `KnowledgeGraph`, `Course`, `CourseSummary`, `AIGraphResponse`, `AIConfig`, and `AIClientError` class
+- [x] T009 [P] Create `lib/storage.ts` implementing the full storage contract: `getCourseIndex`, `saveCourseIndex`, `getCourse`, `saveCourse`, `deleteCourse`, `getAIConfig`, `saveAIConfig` — all reading/writing localStorage with error handling per contracts/storage.md
+- [x] T010 [P] Create `lib/graph-engine.ts` with two exports: `computeNodeStates(nodes, edges, knownIds)` → `ConceptNode[]` applying the known/edge/future state machine from data-model.md; `buildKnowledgeGraph(response, prompt)` → `KnowledgeGraph` converting `AIGraphResponse` + assigning edge IDs + computing initial states
 
 **Checkpoint**: Foundation ready — all user story phases can now begin.
 
@@ -58,12 +58,12 @@ into a blank workspace, and have everything persist across browser sessions.
 **Independent Test**: Open app → "New Course" → enter name → course appears in
 list → click it → blank workspace opens → reload page → course still present.
 
-- [ ] T011 [US1] Create `hooks/use-courses.ts`: `useCourses()` hook returning `{ courses: CourseSummary[], createCourse(name), deleteCourse(id) }`, reading from and writing to storage.ts, using `useState` + `useEffect` for localStorage sync
-- [ ] T012 [P] [US1] Create `components/courses/course-card.tsx`: ShadcnUI Card showing course name, creation date, node count ("No graph yet" if 0), known/total progress — accepts `course: CourseSummary` and `onClick` prop
-- [ ] T013 [P] [US1] Create `components/courses/new-course-dialog.tsx`: ShadcnUI Dialog with Input (course name, 1–100 chars) and Create button — accepts `onCreateCourse(name: string)` prop, validates non-empty input
-- [ ] T014 [US1] Create `components/courses/course-list.tsx`: responsive grid of `CourseCard` components; empty state ("No courses yet — create your first one"); `NewCourseDialog` trigger button — uses `useCourses` hook
-- [ ] T015 [US1] Replace `app/page.tsx` with client component home page: `'use client'` directive, imports and renders `CourseList`, sets page heading "My Courses"
-- [ ] T016 [US1] Create `app/course/[id]/page.tsx`: client component course workspace shell — `await params` (Next.js 16 pattern), loads course via `getCourse(id)` from storage, shows course name in header with back-to-home link; renders "No graph yet — enter a prompt below" placeholder when `course.graph` is null; shows 404-style message if course not found
+- [x] T011 [US1] Create `hooks/use-courses.ts`: `useCourses()` hook returning `{ courses: CourseSummary[], createCourse(name), deleteCourse(id) }`, reading from and writing to storage.ts, using `useState` + `useEffect` for localStorage sync
+- [x] T012 [P] [US1] Create `components/courses/course-card.tsx`: ShadcnUI Card showing course name, creation date, node count ("No graph yet" if 0), known/total progress — accepts `course: CourseSummary` and `onClick` prop
+- [x] T013 [P] [US1] Create `components/courses/new-course-dialog.tsx`: ShadcnUI Dialog with Input (course name, 1–100 chars) and Create button — accepts `onCreateCourse(name: string)` prop, validates non-empty input
+- [x] T014 [US1] Create `components/courses/course-list.tsx`: responsive grid of `CourseCard` components; empty state ("No courses yet — create your first one"); `NewCourseDialog` trigger button — uses `useCourses` hook
+- [x] T015 [US1] Replace `app/page.tsx` with client component home page: `'use client'` directive, imports and renders `CourseList`, sets page heading "My Courses"
+- [x] T016 [US1] Create `app/course/[id]/page.tsx`: client component course workspace shell — `await params` (Next.js 16 pattern), loads course via `getCourse(id)` from storage, shows course name in header with back-to-home link; renders "No graph yet — enter a prompt below" placeholder when `course.graph` is null; shows 404-style message if course not found
 
 **Checkpoint**: User Story 1 fully functional — create, list, navigate, persist courses.
 
@@ -77,11 +77,11 @@ DAG knowledge graph with labelled concept nodes and dependency edges.
 **Independent Test**: Open a course → type "I want to learn machine learning" →
 click Generate → within 30s a DAG appears with labelled nodes and directed edges.
 
-- [ ] T017 [P] [US2] Create `app/settings/page.tsx`: AI settings form (ShadcnUI Card + Input fields for base URL, model, API key) — reads via `getAIConfig()`, saves via `saveAIConfig()`, shows defaults (`http://localhost:11434/v1`, `llama3.2`), links back to home
-- [ ] T018 [P] [US2] Create `lib/ai-client.ts`: `generateKnowledgeGraph(topic, config)` using `openai` SDK with `dangerouslyAllowBrowser: true`, `response_format: { type: 'json_object' }`, prompt from contracts/ai-client.md, post-processing validation (removes orphan edges, deduplicates nodes), throws `AIClientError` with typed `code` for auth/rate/network/parse/empty-graph errors
-- [ ] T019 [US2] Create `components/prompt-input.tsx`: ShadcnUI Input + Button form for topic entry; accepts `onSubmit(topic: string)` and `isLoading: boolean` props; disables input and shows spinner during generation; validates non-empty input
-- [ ] T020 [P] [US2] Create `components/ai-config-banner.tsx`: dismissible warning Banner (ShadcnUI Card with amber styling) shown when AI config is at default Ollama URL — prompts user to verify Ollama is running or go to settings
-- [ ] T021 [US2] Update `app/course/[id]/page.tsx` (replacing shell from T016): add `PromptInput` component, wire `handleGenerate` calling `getAIConfig()` + `generateKnowledgeGraph()` + `buildKnowledgeGraph()` + `saveCourse()`; show `AiConfigBanner` if config is default; add loading overlay during generation; add error toast/banner on `AIClientError` with retry option; persist generated graph to course in storage
+- [x] T017 [P] [US2] Create `app/settings/page.tsx`: AI settings form (ShadcnUI Card + Input fields for base URL, model, API key) — reads via `getAIConfig()`, saves via `saveAIConfig()`, shows defaults (`http://localhost:11434/v1`, `llama3.2`), links back to home
+- [x] T018 [P] [US2] Create `lib/ai-client.ts`: `generateKnowledgeGraph(topic, config)` using `openai` SDK with `dangerouslyAllowBrowser: true`, `response_format: { type: 'json_object' }`, prompt from contracts/ai-client.md, post-processing validation (removes orphan edges, deduplicates nodes), throws `AIClientError` with typed `code` for auth/rate/network/parse/empty-graph errors
+- [x] T019 [US2] Create `components/prompt-input.tsx`: ShadcnUI Input + Button form for topic entry; accepts `onSubmit(topic: string)` and `isLoading: boolean` props; disables input and shows spinner during generation; validates non-empty input
+- [x] T020 [P] [US2] Create `components/ai-config-banner.tsx`: dismissible warning Banner (ShadcnUI Card with amber styling) shown when AI config is at default Ollama URL — prompts user to verify Ollama is running or go to settings
+- [x] T021 [US2] Update `app/course/[id]/page.tsx` (replacing shell from T016): add `PromptInput` component, wire `handleGenerate` calling `getAIConfig()` + `generateKnowledgeGraph()` + `buildKnowledgeGraph()` + `saveCourse()`; show `AiConfigBanner` if config is default; add loading overlay during generation; add error toast/banner on `AIClientError` with retry option; persist generated graph to course in storage
 
 **Checkpoint**: User Story 2 fully functional — prompt generates and displays a DAG.
 
@@ -97,11 +97,11 @@ updates all dependent nodes.
 prerequisites now met turn amber (edge) → mark one of those known → further
 dependents update → all changes happen in <300ms without page reload.
 
-- [ ] T022 [US3] Create `hooks/use-graph.ts`: `useGraph(initialCourse)` hook — manages `course` state with `graph` and node states; exports `toggleNodeKnown(nodeId)` which calls `computeNodeStates()` from graph-engine, updates course state, and persists via `saveCourse()`; updates within a single synchronous state transition
-- [ ] T023 [P] [US3] Create `components/graph/concept-node.tsx`: custom React Flow node component (`NodeProps<ConceptNodeData>`) — renders concept label (2-line truncation), ShadcnUI `Badge` for state (green/Known, amber/Edge, grey/Future), "Mark as known" / "Unmark" button calling `data.onToggle()`; exports `conceptNodeTypes` record for React Flow
-- [ ] T024 [P] [US3] Create `components/graph/graph-legend.tsx`: horizontal row of three coloured pill labels (Known=green, Edge of Knowledge=amber, Future=grey) — purely presentational, renders below the graph canvas
-- [ ] T025 [US3] Create `components/graph/knowledge-graph.tsx`: React Flow canvas — imports `ReactFlow`, `Background`, `Controls` from `@xyflow/react`; runs dagre layout on `graph.nodes`/`graph.edges` on mount and graph prop change (`rankdir: 'TB'`); maps `ConceptNode[]` → `Node<ConceptNodeData>[]` passing `onToggle` via node data; uses `conceptNodeTypes`; wires `onNodeClick` and `onNodesChange`; renders `GraphLegend` below canvas; handles empty graph state
-- [ ] T026 [US3] Wire `KnowledgeGraph` into `app/course/[id]/page.tsx`: replace DAG placeholder with `<KnowledgeGraph graph={course.graph} ... />` connected to `useGraph` hook; pass `onNodeClick` (opens detail panel, implemented in US4) and `onNodeStateToggle` → `toggleNodeKnown`
+- [x] T022 [US3] Create `hooks/use-graph.ts`: `useGraph(initialCourse)` hook — manages `course` state with `graph` and node states; exports `toggleNodeKnown(nodeId)` which calls `computeNodeStates()` from graph-engine, updates course state, and persists via `saveCourse()`; updates within a single synchronous state transition
+- [x] T023 [P] [US3] Create `components/graph/concept-node.tsx`: custom React Flow node component (`NodeProps<ConceptNodeData>`) — renders concept label (2-line truncation), ShadcnUI `Badge` for state (green/Known, amber/Edge, grey/Future), "Mark as known" / "Unmark" button calling `data.onToggle()`; exports `conceptNodeTypes` record for React Flow
+- [x] T024 [P] [US3] Create `components/graph/graph-legend.tsx`: horizontal row of three coloured pill labels (Known=green, Edge of Knowledge=amber, Future=grey) — purely presentational, renders below the graph canvas
+- [x] T025 [US3] Create `components/graph/knowledge-graph.tsx`: React Flow canvas — imports `ReactFlow`, `Background`, `Controls` from `@xyflow/react`; runs dagre layout on `graph.nodes`/`graph.edges` on mount and graph prop change (`rankdir: 'TB'`); maps `ConceptNode[]` → `Node<ConceptNodeData>[]` passing `onToggle` via node data; uses `conceptNodeTypes`; wires `onNodeClick` and `onNodesChange`; renders `GraphLegend` below canvas; handles empty graph state
+- [x] T026 [US3] Wire `KnowledgeGraph` into `app/course/[id]/page.tsx`: replace DAG placeholder with `<KnowledgeGraph graph={course.graph} ... />` connected to `useGraph` hook; pass `onNodeClick` (opens detail panel, implemented in US4) and `onNodeStateToggle` → `toggleNodeKnown`
 
 **Checkpoint**: User Story 3 fully functional — tripartite visual state, instant
 re-evaluation on toggle, persists across sessions.
@@ -118,8 +118,8 @@ toggle button. Clicking a linked concept highlights it on the graph.
 description, and linked nodes → click "Mark as known" in panel → graph updates →
 click a prerequisite link in panel → graph highlights that node.
 
-- [ ] T027 [US4] Create `components/concept-detail-panel.tsx`: ShadcnUI `Sheet` slide-over — accepts `concept: ConceptNode | null`, `graph: KnowledgeGraph`, `onClose()`, `onToggleKnown(nodeId)`, `onNavigateToNode(nodeId)` props; renders concept name + description, prerequisites section (list of ConceptNode names with state badges, each clickable), "Unlocks" section (list of concepts this node enables), "Mark as Known" / "Unmark" button; shows nothing / Sheet closed when `concept` is null
-- [ ] T028 [US4] Wire `ConceptDetailPanel` into `app/course/[id]/page.tsx`: add `selectedNodeId` state; pass `onNodeClick` to `KnowledgeGraph` → sets `selectedNodeId`; render `ConceptDetailPanel` with derived `selectedConcept`; wire `onToggleKnown` → `toggleNodeKnown`; wire `onNavigateToNode` → updates `selectedNodeId` + uses React Flow `useReactFlow().fitView({ nodes: [nodeId] })` to pan/zoom to that node
+- [x] T027 [US4] Create `components/concept-detail-panel.tsx`: ShadcnUI `Sheet` slide-over — accepts `concept: ConceptNode | null`, `graph: KnowledgeGraph`, `onClose()`, `onToggleKnown(nodeId)`, `onNavigateToNode(nodeId)` props; renders concept name + description, prerequisites section (list of ConceptNode names with state badges, each clickable), "Unlocks" section (list of concepts this node enables), "Mark as Known" / "Unmark" button; shows nothing / Sheet closed when `concept` is null
+- [x] T028 [US4] Wire `ConceptDetailPanel` into `app/course/[id]/page.tsx`: add `selectedNodeId` state; pass `onNodeClick` to `KnowledgeGraph` → sets `selectedNodeId`; render `ConceptDetailPanel` with derived `selectedConcept`; wire `onToggleKnown` → `toggleNodeKnown`; wire `onNavigateToNode` → updates `selectedNodeId` + uses React Flow `useReactFlow().fitView({ nodes: [nodeId] })` to pan/zoom to that node
 
 **Checkpoint**: All four user stories independently functional and composable.
 
@@ -129,12 +129,12 @@ click a prerequisite link in panel → graph highlights that node.
 
 **Purpose**: Loading states, error boundaries, edge-case UX, final quality gate run.
 
-- [ ] T029 [P] Add `app/course/[id]/loading.tsx`: skeleton loading UI matching course workspace layout (header skeleton + graph canvas placeholder)
-- [ ] T030 [P] Add all-known congratulatory state in `components/graph/knowledge-graph.tsx`: when every node has `state === 'known'`, overlay a subtle congratulatory message ("You've mastered all concepts in this course! 🎓") inside the canvas
-- [ ] T031 [P] Add `app/course/[id]/error.tsx`: Next.js error boundary component showing friendly error message with "Try reloading" button
-- [ ] T032 [P] Add settings link in `app/page.tsx` header (gear icon using a Lucide icon or ShadcnUI iconButton) linking to `/settings`
-- [ ] T033 [P] Update `app/globals.css`: remove default Next.js placeholder CSS; import `@xyflow/react/dist/style.css`; add any ShadcnUI token overrides needed for React Flow node styling
-- [ ] T034 Run final quality gate pass: `npx tsc --noEmit` → fix all type errors; `npm run lint` → fix all lint errors; `npm run build` → fix all build errors; verify pre-commit and pre-push hooks fire correctly with a test commit
+- [x] T029 [P] Add `app/course/[id]/loading.tsx`: skeleton loading UI matching course workspace layout (header skeleton + graph canvas placeholder)
+- [x] T030 [P] Add all-known congratulatory state in `components/graph/knowledge-graph.tsx`: when every node has `state === 'known'`, overlay a subtle congratulatory message ("You've mastered all concepts in this course! 🎓") inside the canvas
+- [x] T031 [P] Add `app/course/[id]/error.tsx`: Next.js error boundary component showing friendly error message with "Try reloading" button
+- [x] T032 [P] Add settings link in `app/page.tsx` header (gear icon using a Lucide icon or ShadcnUI iconButton) linking to `/settings`
+- [x] T033 [P] Update `app/globals.css`: remove default Next.js placeholder CSS; import `@xyflow/react/dist/style.css`; add any ShadcnUI token overrides needed for React Flow node styling
+- [x] T034 Run final quality gate pass: `npx tsc --noEmit` → fix all type errors; `npm run lint` → fix all lint errors; `npm run build` → fix all build errors; verify pre-commit and pre-push hooks fire correctly with a test commit
 
 ---
 
@@ -168,6 +168,7 @@ click a prerequisite link in panel → graph highlights that node.
 ## Parallel Examples
 
 ### Phase 1 Parallel (after T001 + T002 complete)
+
 ```
 Task T003: create .husky/pre-commit
 Task T004: create .husky/pre-push
@@ -177,6 +178,7 @@ Task T007: update app/layout.tsx
 ```
 
 ### Phase 3 (US1) Parallel Opportunities
+
 ```
 # After T011 (hook):
 Task T012: components/courses/course-card.tsx
@@ -185,6 +187,7 @@ Task T013: components/courses/new-course-dialog.tsx
 ```
 
 ### Phase 4 (US2) Parallel Opportunities
+
 ```
 # Start in parallel:
 Task T017: app/settings/page.tsx
@@ -195,6 +198,7 @@ Task T020: components/ai-config-banner.tsx
 ```
 
 ### Phase 5 (US3) Parallel Opportunities
+
 ```
 # After T022 (hook):
 Task T023: components/graph/concept-node.tsx
@@ -221,19 +225,20 @@ the interactive state layer.
 ### Incremental Delivery
 
 1. Setup + Foundational → infrastructure ready
-2. + US1 → named course lifecycle works
-3. + US2 → AI graph generation visible
-4. + US3 → Meaningful Learning state model live 🎯 (core differentiator)
-5. + US4 → Full detail/navigation experience
-6. + Polish → production-ready PoC
+2. - US1 → named course lifecycle works
+3. - US2 → AI graph generation visible
+4. - US3 → Meaningful Learning state model live 🎯 (core differentiator)
+5. - US4 → Full detail/navigation experience
+6. - Polish → production-ready PoC
 
 ### Parallel Team Strategy
 
 With two developers after Phase 2 completes:
+
 - **Dev A**: US1 (T011–T016) → US3 (T022–T026)
 - **Dev B**: US2 (T017–T021) → US4 (T027–T028)
-Stories integrate at the `app/course/[id]/page.tsx` file — Dev A owns the file
-structure; Dev B's wiring tasks (T021, T028) build on Dev A's shell.
+  Stories integrate at the `app/course/[id]/page.tsx` file — Dev A owns the file
+  structure; Dev B's wiring tasks (T021, T028) build on Dev A's shell.
 
 ---
 
