@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Settings } from 'lucide-react'
 import Link from 'next/link'
@@ -26,11 +26,19 @@ export default function CoursePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+  const [streamText, setStreamText] = useState('')
+  const streamScrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const found = getCourse(id)
     setBaseCourse(found ?? 'not-found')
   }, [id])
+
+  // Auto-scroll the stream output to the bottom as new tokens arrive
+  useEffect(() => {
+    const el = streamScrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [streamText])
 
   const courseForHook = baseCourse === 'not-found' ? null : baseCourse
   const { currentCourse, toggleNodeKnown } = useGraph(courseForHook, setBaseCourse)
@@ -39,9 +47,12 @@ export default function CoursePage() {
     if (!currentCourse) return
     setIsGenerating(true)
     setGenerateError(null)
+    setStreamText('')
     try {
       const config = getAIConfig()
-      const response = await generateKnowledgeGraph(topic, config)
+      const response = await generateKnowledgeGraph(topic, config, (chunk) => {
+        setStreamText((prev) => prev + chunk)
+      })
       const graph = buildKnowledgeGraph(response, topic)
       const updated: Course = {
         ...currentCourse,
@@ -63,6 +74,7 @@ export default function CoursePage() {
       setGenerateError(messages[aiErr.code] ?? 'An unexpected error occurred. Please try again.')
     } finally {
       setIsGenerating(false)
+      setTimeout(() => setStreamText(''), 400)
     }
   }
 
@@ -128,6 +140,25 @@ export default function CoursePage() {
             <p className="text-muted-foreground text-center text-base">
               No graph yet — enter a topic prompt above to generate your knowledge graph.
             </p>
+          </div>
+        )}
+
+        {/* Streaming overlay — visible while the AI is generating */}
+        {isGenerating && (
+          <div className="absolute inset-0 z-20 flex flex-col bg-background/95 backdrop-blur-sm">
+            <div className="flex shrink-0 items-center gap-2 border-b px-4 py-2">
+              <span className="bg-primary h-1.5 w-1.5 animate-pulse rounded-full" />
+              <span className="text-muted-foreground text-xs font-medium">
+                Generating knowledge graph…
+              </span>
+            </div>
+            <div ref={streamScrollRef} className="flex-1 overflow-y-auto px-4 py-3">
+              <pre className="text-foreground/75 whitespace-pre-wrap break-words font-mono text-xs leading-relaxed">
+                {streamText}
+                {/* blinking cursor */}
+                <span className="animate-pulse">▌</span>
+              </pre>
+            </div>
           </div>
         )}
 

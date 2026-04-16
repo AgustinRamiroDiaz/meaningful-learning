@@ -85,7 +85,8 @@ function validateAndCleanResponse(raw: unknown): AIGraphResponse {
 
 export async function generateKnowledgeGraph(
   topic: string,
-  config: AIConfig
+  config: AIConfig,
+  onChunk?: (text: string) => void
 ): Promise<AIGraphResponse> {
   const client = new OpenAI({
     baseURL: config.baseUrl,
@@ -93,16 +94,22 @@ export async function generateKnowledgeGraph(
     dangerouslyAllowBrowser: true,
   })
 
-  let content: string | null = null
+  let content = ''
 
   try {
-    const response = await client.chat.completions.create({
+    const stream = await client.chat.completions.create({
       model: config.model,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- openai type varies by provider
-      response_format: { type: 'json_object' } as any,
       messages: [{ role: 'user', content: buildPrompt(topic) }],
+      stream: true,
     })
-    content = response.choices[0]?.message?.content ?? null
+
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content ?? ''
+      if (delta) {
+        content += delta
+        onChunk?.(delta)
+      }
+    }
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'status' in err) {
       const status = (err as { status: number }).status
@@ -123,9 +130,15 @@ export async function generateKnowledgeGraph(
     throw new AIClientError('AI returned an empty response', 'PARSE_ERROR')
   }
 
+  // Strip markdown code fences that some models wrap around JSON output
+  const jsonContent = content
+    .replace(/^```(?:json)?\s*\n?/i, '')
+    .replace(/\n?```\s*$/i, '')
+    .trim()
+
   let parsed: unknown
   try {
-    parsed = JSON.parse(content)
+    parsed = JSON.parse(jsonContent)
   } catch {
     throw new AIClientError('AI response is not valid JSON', 'PARSE_ERROR')
   }
