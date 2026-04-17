@@ -111,7 +111,7 @@ test('create course → generate graph (mocked) → acknowledge concepts', async
   await page.getByRole('button', { name: 'Create' }).click()
 
   // ── 3. Course page loads with the correct name ────────────────────────────
-  await expect(page).toHaveURL(/\/course\//)
+  await expect(page).toHaveURL(/\/course\?id=/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Python Programming')
 
   // ── 4. Submit a topic prompt ──────────────────────────────────────────────

@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useRef, useState, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { AiConfigBanner } from '@/components/ai-config-banner'
@@ -17,10 +17,10 @@ import { getAIConfig, getCourse, saveCourse } from '@/lib/storage'
 import type { AIClientError, ConceptNode, Course } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-export default function CoursePage() {
-  const params = useParams()
+function CoursePageInner() {
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const id = typeof params.id === 'string' ? params.id : ''
+  const id = searchParams.get('id') ?? ''
 
   const [baseCourse, setBaseCourse] = useState<Course | null | 'not-found'>(null)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -30,6 +30,10 @@ export default function CoursePage() {
   const streamScrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!id) {
+      setBaseCourse('not-found')
+      return
+    }
     const found = getCourse(id)
     setBaseCourse(found ?? 'not-found')
   }, [id])
@@ -174,5 +178,15 @@ export default function CoursePage() {
         )}
       </div>
     </div>
+  )
+}
+
+// useSearchParams() requires a Suspense boundary when used in a statically
+// exported page — wrap the inner component so the shell can be pre-rendered.
+export default function CoursePage() {
+  return (
+    <Suspense fallback={null}>
+      <CoursePageInner />
+    </Suspense>
   )
 }

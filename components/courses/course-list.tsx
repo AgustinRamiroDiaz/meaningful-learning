@@ -11,7 +11,7 @@ export function CourseList() {
 
   const handleCreate = (name: string) => {
     const id = createCourse(name)
-    router.push(`/course/${id}`)
+    router.push(`/course?id=${id}`)
   }
 
   return (
@@ -34,7 +34,7 @@ export function CourseList() {
             <CourseCard
               key={course.id}
               course={course}
-              onClick={() => router.push(`/course/${course.id}`)}
+              onClick={() => router.push(`/course?id=${course.id}`)}
             />
           ))}
         </div>
