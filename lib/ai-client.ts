@@ -1,6 +1,65 @@
 import OpenAI from 'openai'
+import type { ResponseFormatJSONSchema } from 'openai/resources/shared'
 import { AIClientError } from './types'
 import type { AIConfig, AIGraphResponse } from './types'
+
+// ── Structured output schema ───────────────────────────────────────────────────
+//
+// Defines the exact JSON shape the model must produce.
+// strict: true + additionalProperties: false on every object enforces the schema
+// server-side, so no partial or hallucinated fields can appear in the output.
+
+const KNOWLEDGE_GRAPH_SCHEMA: ResponseFormatJSONSchema = {
+  type: 'json_schema',
+  json_schema: {
+    name: 'knowledge_graph',
+    description:
+      'A directed acyclic graph of concepts for the Meaningful Learning approach. ' +
+      'Edges represent prerequisite relationships (source must be learned before target).',
+    strict: true,
+    schema: {
+      type: 'object',
+      properties: {
+        nodes: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+                description: 'Unique snake_case identifier, e.g. "linear_algebra"',
+              },
+              label: {
+                type: 'string',
+                description: 'Concise concept name, 2–5 words',
+              },
+              description: {
+                type: 'string',
+                description: '1-2 sentence explanation for a non-expert audience',
+              },
+            },
+            required: ['id', 'label', 'description'],
+            additionalProperties: false,
+          },
+        },
+        edges: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              source: { type: 'string', description: 'ID of the prerequisite concept' },
+              target: { type: 'string', description: 'ID of the concept that depends on source' },
+            },
+            required: ['source', 'target'],
+            additionalProperties: false,
+          },
+        },
+      },
+      required: ['nodes', 'edges'],
+      additionalProperties: false,
+    },
+  },
+}
 
 // ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -17,16 +76,13 @@ Rules:
 - Edges must not create cycles.
 - Root nodes (no prerequisites) represent foundational concepts.
 
-Topic: ${topic}
-
-Respond with valid JSON matching this exact schema:
-{
-  "nodes": [{ "id": "string", "label": "string", "description": "string" }],
-  "edges": [{ "source": "string", "target": "string" }]
-}`
+Topic: ${topic}`
 }
 
 // ── Validation ────────────────────────────────────────────────────────────────
+//
+// Structured outputs guarantee the schema is respected, but we still validate
+// semantic constraints (non-empty graph, edges reference existing node IDs).
 
 function validateAndCleanResponse(raw: unknown): AIGraphResponse {
   if (!raw || typeof raw !== 'object') {
@@ -43,18 +99,10 @@ function validateAndCleanResponse(raw: unknown): AIGraphResponse {
   const nodes: AIGraphResponse['nodes'] = []
 
   for (const n of obj.nodes) {
-    if (
-      n &&
-      typeof n === 'object' &&
-      typeof (n as Record<string, unknown>).id === 'string' &&
-      typeof (n as Record<string, unknown>).label === 'string' &&
-      typeof (n as Record<string, unknown>).description === 'string'
-    ) {
-      const node = n as { id: string; label: string; description: string }
-      if (!nodeIds.has(node.id)) {
-        nodeIds.add(node.id)
-        nodes.push(node)
-      }
+    const node = n as { id: string; label: string; description: string }
+    if (!nodeIds.has(node.id)) {
+      nodeIds.add(node.id)
+      nodes.push(node)
     }
   }
 
@@ -62,21 +110,10 @@ function validateAndCleanResponse(raw: unknown): AIGraphResponse {
     throw new AIClientError('AI returned no valid concept nodes', 'EMPTY_GRAPH')
   }
 
-  const edges: AIGraphResponse['edges'] = []
-  for (const e of obj.edges) {
-    if (
-      e &&
-      typeof e === 'object' &&
-      typeof (e as Record<string, unknown>).source === 'string' &&
-      typeof (e as Record<string, unknown>).target === 'string'
-    ) {
-      const edge = e as { source: string; target: string }
-      // Only keep edges where both source and target exist in the node set
-      if (nodeIds.has(edge.source) && nodeIds.has(edge.target)) {
-        edges.push(edge)
-      }
-    }
-  }
+  // Drop edges that reference unknown node IDs (guards against hallucinated IDs)
+  const edges: AIGraphResponse['edges'] = (
+    obj.edges as { source: string; target: string }[]
+  ).filter((e) => nodeIds.has(e.source) && nodeIds.has(e.target))
 
   return { nodes, edges }
 }
@@ -100,6 +137,7 @@ export async function generateKnowledgeGraph(
     const stream = await client.chat.completions.create({
       model: config.model,
       messages: [{ role: 'user', content: buildPrompt(topic) }],
+      response_format: KNOWLEDGE_GRAPH_SCHEMA,
       stream: true,
     })
 
@@ -130,7 +168,7 @@ export async function generateKnowledgeGraph(
     throw new AIClientError('AI returned an empty response', 'PARSE_ERROR')
   }
 
-  // Strip markdown code fences that some models wrap around JSON output
+  // Strip markdown code fences — some providers ignore response_format and wrap output anyway
   const jsonContent = content
     .replace(/^```(?:json)?\s*\n?/i, '')
     .replace(/\n?```\s*$/i, '')
